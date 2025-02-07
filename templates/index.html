@@ -1,0 +1,236 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Image Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+            <h1 class="text-2xl font-bold mb-6 text-center">Vector Image Converter</h1>
+            
+            <form id="convertForm" class="space-y-4">
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                    <div class="text-center">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Drop files here or click to upload
+                        </label>
+                        <input type="file" id="fileInput" multiple accept=".png,.jpg,.jpeg,.bmp,.gif"
+                            class="hidden" onchange="handleFiles(this.files)">
+                        <button type="button" onclick="document.getElementById('fileInput').click()"
+                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            Select Files
+                        </button>
+                    </div>
+                    <div id="fileList" class="mt-4 space-y-2"></div>
+                </div>
+
+                <div class="flex justify-center space-x-4">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="format" value="ai" checked
+                            class="form-radio text-blue-500">
+                        <span class="ml-2">AI Format</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="format" value="eps"
+                            class="form-radio text-blue-500">
+                        <span class="ml-2">EPS Format</span>
+                    </label>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" id="convertBtn"
+                        class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 disabled:opacity-50"
+                        disabled>
+                        Convert Files
+                    </button>
+                </div>
+            </form>
+
+            <div id="status" class="mt-4 text-center hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+
+        function handleFiles(files) {
+            selectedFiles = Array.from(files);
+            updateFileList();
+        }
+
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'flex justify-between items-center p-2 bg-gray-50 rounded';
+                fileItem.innerHTML = `
+                    <span>${file.name}</span>
+                    <button onclick="removeFile(${index})" class="text-red-500 hover:text-red-700">
+                        Remove
+                    </button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+
+            document.getElementById('convertBtn').disabled = selectedFiles.length === 0;
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+        }
+
+        document.getElementById('convertForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const status = document.getElementById('status');
+            status.className = 'mt-4 text-center';
+            status.innerHTML = 'Converting files...';
+            status.style.display = 'block';
+
+            const formData = new FormData();
+            selectedFiles.forEach(file => {
+                formData.append('files', file);
+            });
+            formData.append('output_format', document.querySelector('input[name="format"]:checked').value);
+
+            try {
+                const response = await fetch('http://localhost:8000/convert/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Conversion failed');
+                }
+
+                const data = await response.json();
+                
+                // Trigger download
+                status.innerHTML = 'Downloading converted files...';
+                window.location.href = `http://localhost:8000/download/${data.session_id}`;
+                
+                // Reset form
+                setTimeout(() => {
+                    status.innerHTML = 'Conversion complete!';
+                    selectedFiles = [];
+                    updateFileList();
+                }, 1000);
+
+            } catch (error) {
+                status.innerHTML = `Error: ${error.message}`;
+                status.className = 'mt-4 text-center text-red-500';
+            }
+        });
+
+        // Drag and drop handling
+        const dropZone = document.querySelector('.border-dashed');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('border-blue-500');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('border-blue-500');
+        }
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Converter</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Vector Converter</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <label for="file">Upload Image(s):</label>
+            <input type="file" name="files" id="file" multiple>
+            <label for="format">Output Format:</label>
+            <select name="format" id="format">
+                <option value="ai">AI (Adobe Illustrator)</option>
+                <option value="eps">EPS (Encapsulated PostScript)</option>
+            </select>
+            <button type="submit">Convert</button>
+        </form>
+        <div id="resultSection" class="hidden">
+            <h2>Converted Files</h2>
+            <div id="fileList"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            const files = document.getElementById("file").files;
+            const format = document.getElementById("format").value;
+
+            for (let file of files) {
+                formData.append("files", file);
+            }
+            formData.append("format", format);
+
+            const response = await fetch("/convert", {
+                method: "POST",
+                body: formData,
+            });
+
+            const result = await response.json();
+            const fileList = document.getElementById("fileList");
+            fileList.innerHTML = "";
+
+            if (result.file_urls && result.file_urls.length > 0) {
+                document.getElementById("resultSection").classList.remove("hidden");
+                result.file_urls.forEach(url => {
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.textContent = url.split("/").pop();
+                    link.target = "_blank";
+                    link.classList.add("file-link");
+                    fileList.appendChild(link);
+                    fileList.appendChild(document.createElement("br"));
+                });
+            } else {
+                alert("No files were converted.");
+            }
+        });
+    </script>
+</body>
+</html>
