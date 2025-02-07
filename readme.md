@@ -6,6 +6,7 @@ A Python utility for converting image files (PNG, JPG) to vector formats (AI, EP
 
 - Python 3.7+
 - Inkscape installed on your system
+- Inkscape Download link : https://inkscape.org/release/inkscape-1.4/windows/64-bit/msi/?redirected=1
 
 
 ## Usage
